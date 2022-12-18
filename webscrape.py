@@ -1,6 +1,7 @@
 # For importing HTML data
 from lxml import html
 import requests
+import matplotlib.pyplot as plt
 
 # For formatting money
 from decimal import Decimal, ROUND_DOWN
@@ -38,21 +39,23 @@ def ebayScrape(searchString):
             errCount = errCount + 1
 
     # print('Error Count: ',errCount)
-    resultStats(pricesFloat)
+    sortedprices = resultStats(pricesFloat)
+    graphsandstuff(sortedprices)
 
 def ebay_search(searchString):
     # Ebay search formatting
     # Returns formatting ebay url
     cSearchString = searchString.replace(" ", "+")
     start_url = 'https://www.ebay.com/sch/i.html?_nkw='
-    end_url = '&_in_kw=1&_ex_kw=&_sacat=0&LH_Sold=1&_udlo=&_udhi=&LH_BIN=1&LH_ItemCondition=4&_samilow=&_samihi=&_sadis=15&_stpos=53215-3940&_sargn=-1%26saslc%3D1&_salic=1&_sop=12&_dmd=1&_ipg=50&LH_Complete=1&_fosrp=1'
+    end_url = '&_in_kw=1&_ex_kw=&_sacat=0&LH_Sold=1&_udlo=&_udhi=&LH_BIN=1&LH_ItemCondition=4&_samilow=&_samihi=&_sadis=15&_stpos=53215-3940&_sargn=-1%26saslc%3D1&_salic=1&_sop=12&_dmd=1&_ipg=120&LH_Complete=1&_fosrp=1'
     full_url = (start_url + cSearchString + end_url)
+    print(full_url)
     return full_url
 
 def resultStats(pricesFloat):
     meanPrice = sum(pricesFloat)/len(pricesFloat)
     meanPrice = Decimal(str(meanPrice)).quantize(Decimal('.01'), rounding=ROUND_DOWN)
-    #print('Mean price: $',meanPrice)
+    print('Mean price: $',meanPrice)
 
     medianPrice = pricesFloat[round(len(pricesFloat)/2)]
     print('Median Price: $',medianPrice)
@@ -60,6 +63,16 @@ def resultStats(pricesFloat):
     standardDev = statistics.stdev(pricesFloat)
     standardDev = Decimal(str(standardDev)).quantize(Decimal('.01'), rounding=ROUND_DOWN)
     print('Standard Deviation: $',standardDev)
-    
-    # print(sorted(pricesFloat, key = float))
+    return sorted(pricesFloat, key = float)
 
+def graphsandstuff(prices):
+    print("Graphs for you")
+    
+    plt.plot(prices)
+
+    plt.xlabel("All Results")
+    plt.ylabel("Price ($)")
+    plt.title("Price of Used Cards on Ebay")
+    ax = plt.gca()
+    ax.set_ylim([0, max(prices)+20])
+    plt.show()
